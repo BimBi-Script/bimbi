@@ -1199,27 +1199,29 @@ function OrionLib:MakeWindow(WindowConfig)
         Vector2.new(maxWidth, math.huge)
     )
 
-	task.spawn(function() 
-		local textLabel = WindowName
-		local texto = WindowConfig.Name
-		local velocidade = 0.08
+--[[
+task.spawn(function() 
+    local textLabel = WindowName
+    local texto = WindowConfig.Name
+    local velocidade = 0.08
 
-		while true do
-			for i = 1, #texto do
-				textLabel.Text = string.sub(texto, 1, i)
-				task.wait(velocidade)
-			end
+    while true do
+        for i = 1, #texto do
+            textLabel.Text = string.sub(texto, 1, i)
+            task.wait(velocidade)
+        end
 
-			task.wait(10)
+        task.wait(10)
 
-			for i = #texto, 0, -1 do
-				textLabel.Text = string.sub(texto, 1, i)
-				task.wait(velocidade / 2)
-			end
+        for i = #texto, 0, -1 do
+            textLabel.Text = string.sub(texto, 1, i)
+            task.wait(velocidade / 2)
+        end
 
-			task.wait(0.5)
-		end
-	end)
+        task.wait(0.5)
+    end
+end)
+--]]
 	
 	local WindowTopBarLine = AddThemeObject(SetProps(MakeElement("Frame"), {
 		Size = UDim2.new(1, 0, 0, 1),
@@ -3994,6 +3996,10 @@ end
 -- =====================================================
 
 -- OrionLib를 이용해 윈도우 생성
+-- =====================================================
+--  Player 탭 (블리치 소스에서 가져옴)
+-- =====================================================
+
 local Window = OrionLib:MakeWindow({
     Name = "BimBi_Hub",
     IntroEnabled = true,
@@ -4001,6 +4007,7 @@ local Window = OrionLib:MakeWindow({
     KeyToOpenWindow = "RightControl",
     FreeMouse = true
 })
+
 
 -- 테스트용 탭 추가 (원하면 추가/삭제 가능)
 
