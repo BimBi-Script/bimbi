@@ -4004,7 +4004,7 @@ local Window = OrionLib:MakeWindow({
     Name = "BimBi_Hub",
     IntroEnabled = true,
     IntroText = "Bimbi_Hub - loading...",
-    KeyToOpenWindow = "RightControl",
+    KeyToOpenWindow = "M",
     FreeMouse = true
 })
 
