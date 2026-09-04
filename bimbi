@@ -1,7 +1,12 @@
 -- =====================================================
---  OrionLib - 무지개 테두리 제거 버전 (전체)
---  + BimBi_Hub 실행 코드 (LocalScript 통합)
---  복붙만 하면 바로 실행됨
+--  BimBi_Hub (수정된 bimbi UI 라이브러리 + 실행 코드)
+--  복붙만 하면 바로 실행됨 (탭 자동 표시)
+-- =====================================================
+
+print("🔵 BimBi_Hub 로드 시작...")
+
+-- =====================================================
+--  수정된 bimbi UI 라이브러리 (전체)
 -- =====================================================
 
 local UserInputService = game:GetService("UserInputService")
@@ -52,7 +57,6 @@ local OrionLib = {
 	SaveCfg = false
 }
 
---Feather Icons https://github.com/evoincorp/lucideblox/tree/master/src/modules/util - Created by 7kayoh
 local Icons = {}
 
 local Success, Response = pcall(function()
@@ -86,8 +90,6 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 local GUIParent = gethui and gethui() or (game.CoreGui or game.Players.LocalPlayer:WaitForChild("PlayerGui"))
 
 Orion.Parent = GUIParent
-
-local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
 ProtectGui(Orion)
 
@@ -501,7 +503,6 @@ function OrionLib:SetTheme()
 		end
 	end
 
-	-- 메인 윈도우 테두리 색상 고정 (무지개 제거)
 	if mainWindowStroke then
 		mainWindowStroke.Color = Color3.fromRGB(255, 255, 255)
 		mainWindowStroke.Transparency = 0.1
@@ -913,6 +914,10 @@ function OrionLib:ScrollToElement(tabName, element, smooth, offsetY)
 	end
 end
 
+-- =====================================================
+--  수정된 MakeWindow 함수 (탭 표시 버그 해결)
+-- =====================================================
+
 function OrionLib:MakeWindow(WindowConfig)
 	local FirstTab = true
 	local Minimized = false
@@ -1007,7 +1012,6 @@ function OrionLib:MakeWindow(WindowConfig)
 	SetChildren(GlobalSearch, {MakeElement("Padding", 0,10,0,0), MakeElement("Corner", 0.35, 0)})
 	
 
-	-- Ícone de lupa
 	local Icon = Instance.new("ImageLabel")
 	Icon.Image = "rbxassetid://7072717695"
 	Icon.ImageColor3 = Color3.fromRGB(200, 200, 200)
@@ -1077,7 +1081,6 @@ function OrionLib:MakeWindow(WindowConfig)
 		end
 	end
 
-	--== Busca automática enquanto digita ==--
 	local debounce = false
 	GlobalSearch:GetPropertyChangedSignal("Text"):Connect(function()
 		if debounce then return end
@@ -1199,29 +1202,30 @@ function OrionLib:MakeWindow(WindowConfig)
         Vector2.new(maxWidth, math.huge)
     )
 
---[[
-task.spawn(function() 
-    local textLabel = WindowName
-    local texto = WindowConfig.Name
-    local velocidade = 0.08
+	-- 타이핑 애니메이션 제거 (글자 깜빡임 방지)
+	--[[
+	task.spawn(function() 
+		local textLabel = WindowName
+		local texto = WindowConfig.Name
+		local velocidade = 0.08
 
-    while true do
-        for i = 1, #texto do
-            textLabel.Text = string.sub(texto, 1, i)
-            task.wait(velocidade)
-        end
+		while true do
+			for i = 1, #texto do
+				textLabel.Text = string.sub(texto, 1, i)
+				task.wait(velocidade)
+			end
 
-        task.wait(10)
+			task.wait(10)
 
-        for i = #texto, 0, -1 do
-            textLabel.Text = string.sub(texto, 1, i)
-            task.wait(velocidade / 2)
-        end
+			for i = #texto, 0, -1 do
+				textLabel.Text = string.sub(texto, 1, i)
+				task.wait(velocidade / 2)
+			end
 
-        task.wait(0.5)
-    end
-end)
---]]
+			task.wait(0.5)
+		end
+	end)
+	--]]
 	
 	local WindowTopBarLine = AddThemeObject(SetProps(MakeElement("Frame"), {
 		Size = UDim2.new(1, 0, 0, 1),
@@ -1258,14 +1262,12 @@ end)
 		WindowStuff
 	}), "Main")
 
-	-- ====== 테두리 설정 (무지개 제거 - 단색 흰색) ======
+	-- 무지개 테두리 제거 (흰색 단색)
 	mainWindowStroke.Parent = MainWindow
 	mainWindowStroke.Thickness = 2.5
 	mainWindowStroke.Color = Color3.fromRGB(255, 255, 255)
 	mainWindowStroke.Transparency = 0.1
 	mainWindowStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	
-	-- UIGradient를 생성하지 않음 (무지개 제거)
 
 	local UserInputService = game:GetService("UserInputService")
     local RunService = game:GetService("RunService")
@@ -1530,12 +1532,14 @@ end)
 			Container.CanvasSize = UDim2.new(0, 0, 0, Container.UIListLayout.AbsoluteContentSize.Y + 30)
 		end)
 
+		-- ★★★ 수정: 첫 번째 탭 자동 표시 ★★★
 		if FirstTab then
 			FirstTab = false
 			TabFrame.Ico.ImageTransparency = 0
 			TabFrame.Title.TextTransparency = 0
 			TabFrame.Title.Font = Enum.Font.GothamBlack
-			Container.Visible = true
+			Container.Visible = true  -- 여기!
+			print("✅ 첫 번째 탭 자동 표시:", TabConfig.Name)
 		end    
 
 		AddConnection(TabFrame.MouseButton1Click, function()
@@ -1556,8 +1560,6 @@ end)
 			TabFrame.Title.Font = Enum.Font.GothamBlack
 			Container.Visible = true   
 		end)
-
-		
 
 		local function GetElements(ItemParent)
 			local ElementFunction = {}
@@ -1861,7 +1863,6 @@ end)
 					ToggleConfig.Callback(Value)
 				end
 
-				-- Força o primeiro carregamento a ser instantâneo para não competir com o tema
 				Toggle:Set(Toggle.Value, true)
 
 				AddConnection(Click.MouseEnter, function()
@@ -3071,7 +3072,6 @@ end)
 				BindConfig.SetCb = BindConfig.SetCb or function() end
 				BindConfig.Flag = BindConfig.Flag or nil
 				BindConfig.Save = BindConfig.Save or false
-				-- Novas configurações opcionais:
 				BindConfig.AllowBlacklisted = BindConfig.AllowBlacklisted or {}
 				BindConfig.ExtraBlacklist = BindConfig.ExtraBlacklist or {}
 
@@ -3140,10 +3140,8 @@ end)
 						local Key
 
 						pcall(function()
-							-- Verifica se a tecla está na blacklist global ou na blacklist extra deste bind
 							local isGlobalBlacklisted = CheckKey(BlacklistedKeys, Input.KeyCode)
 							local isExtraBlacklisted = CheckKey(BindConfig.ExtraBlacklist, Input.KeyCode)
-							-- Verifica se a tecla foi explicitamente permitida para este bind
 							local isExplicitlyAllowed = CheckKey(BindConfig.AllowBlacklisted, Input.KeyCode)
 
 							if (not isGlobalBlacklisted and not isExtraBlacklisted) or isExplicitlyAllowed then
@@ -3305,7 +3303,6 @@ end)
                 ColorpickerConfig = ColorpickerConfig or {}
                 ColorpickerConfig.Name = ColorpickerConfig.Name or "Colorpicker"
                 
-                -- Detecta se o usuário passou uma tabela (Multi) ou uma única cor (Single)
                 local isMulti = type(ColorpickerConfig.Default) == "table"
                 
                 local Defaults = ColorpickerConfig.Default
@@ -3325,7 +3322,6 @@ end)
                     Save = ColorpickerConfig.Save
                 }
 
-                -- Criando os Seletores Visuais (UI do Slider)
                 local ColorSelection = Create("ImageLabel", {
                     Size = UDim2.new(0, 10, 0, 10),
                     ScaleType = Enum.ScaleType.Stretch,
@@ -3385,7 +3381,6 @@ end)
                     })
                 })
 
-                -- Wrapper Principal (Tamanho exato calculado dinamicamente)
                 local ButtonsMainWrapper = Create("Frame", {
                     Size = UDim2.new(0, 0, 1, 0),
                     Position = UDim2.new(1, -12, 0, 0),
@@ -3394,7 +3389,6 @@ end)
                     ZIndex = 3
                 })
 
-                -- O indicador visual "..." posicionado dinamicamente de forma absoluta no Wrapper
                 local TruncateIndicator = AddThemeObject(SetProps(MakeElement("Label", "...", 16), {
                     Size = UDim2.new(0, 16, 1, 0),
                     AnchorPoint = Vector2.new(1, 0),
@@ -3405,7 +3399,6 @@ end)
                     Parent = ButtonsMainWrapper
                 }), "Text")
 
-                -- Container para alinhar os múltiplos botões de cores
                 local ButtonsHolder = Create("Frame", {
                     Size = UDim2.new(1, 0, 1, 0),
                     Position = UDim2.new(1, 0, 0, 0),
@@ -3422,7 +3415,6 @@ end)
                     })
                 })
 
-                -- Botão Invisível cobrindo toda a área superior para clique fácil
                 local ToggleButton = SetProps(MakeElement("Button"), {
                     Size = UDim2.new(1, 0, 1, 0),
                     BackgroundTransparency = 1,
@@ -3430,7 +3422,6 @@ end)
                     Visible = true
                 })
 
-                -- Label de Texto principal (Tamanho controlado estritamente via código)
                 local ContentLabel = AddThemeObject(SetProps(MakeElement("Label", ColorpickerConfig.Name, 15), {
                     Size = UDim2.new(0, 100, 1, 0),
                     Position = UDim2.new(0, 12, 0, 0),
@@ -3439,7 +3430,6 @@ end)
                     TextTruncate = Enum.TextTruncate.AtEnd
                 }), "Text")
 
-                -- Frame Principal do Elemento
                 local ColorpickerFrame = AddThemeObject(SetChildren(SetProps(MakeElement("RoundFrame", Color3.fromRGB(255, 255, 255), 0, 5), {
                     Size = UDim2.new(1, 0, 0, 38),
                     Parent = ItemParent
@@ -3463,11 +3453,9 @@ end)
                     AddThemeObject(MakeElement("Stroke"), "Stroke")
                 }), "Second")
 
-                -- Variáveis de controle de input
                 local ColorInput, HueInput
                 local ColorH, ColorS, ColorV = 0, 0, 1
 
-                -- Função que atualiza a interface com base no Picker selecionado
                 local function UpdatePickerSelectorUI(index)
                     local picker = MultiColorpicker.Pickers[index]
                     if not picker then return end
@@ -3479,7 +3467,6 @@ end)
                     Color.BackgroundColor3 = Color3.fromHSV(ColorH, 1, 1)
                 end
 
-                -- Atualiza o valor e chama o callback/save
                 local function UpdateColorPicker()
                     local activeIndex = MultiColorpicker.ActiveIndex
                     local picker = MultiColorpicker.Pickers[activeIndex]
@@ -3506,7 +3493,6 @@ end)
                     if ColorpickerConfig.Save then SaveCfg(game.GameId) end
                 end
 
-                -- Função para alternar o estado aberto/fechado do painel
                 local function TogglePanel(state)
                     if state == nil then
                         MultiColorpicker.Toggled = not MultiColorpicker.Toggled
@@ -3523,7 +3509,6 @@ end)
                     ColorpickerFrame.F.Line.Visible = MultiColorpicker.Toggled
                 end
 
-                -- Conecta o clique na barra inteira de cima
                 AddConnection(ToggleButton.MouseButton1Click, function()
                     if not isMulti then
                         TogglePanel()
@@ -3546,7 +3531,6 @@ end)
                     end
                 end)
 
-                -- Criação dinâmica de cada caixa de cor baseada na tabela de defaults
                 for i, defaultColor in ipairs(Defaults) do
                     local DefaultStroke = AddThemeObject(MakeElement("Stroke"), "Stroke")
 
@@ -3604,7 +3588,6 @@ end)
                     end)
                 end
 
-                -- Configuração de tamanhos máximos e constraints
                 local maxButtonsWidth = (#Defaults * 24) + ((#Defaults - 1) * 8)
                 ButtonsHolder.Size = UDim2.new(0, maxButtonsWidth, 1, 0)
                 
@@ -3613,13 +3596,11 @@ end)
                     Parent = ButtonsMainWrapper
                 })
 
-                -- LÓGICA DE DETECÇÃO E REDIMENSIONAMENTO ESTÁVEL:
                 local TextService = game:GetService("TextService")
 
                 local function RecalculateLayout()
                     local parentWidth = ColorpickerFrame.F.AbsoluteSize.X
                     
-                    -- Previne cálculo precoce quando a UI ainda não renderizou completamente na tela
                     if parentWidth < 100 then 
                         TruncateIndicator.Visible = false
                         for i = 1, #Defaults do
@@ -3631,7 +3612,6 @@ end)
                         return 
                     end
                     
-                    -- 1. Medir o tamanho real do texto usando a API clássica e segura do Roblox
                     local realTextWidth = 0
                     pcall(function()
                         local size = TextService:GetTextSize(
@@ -3643,7 +3623,6 @@ end)
                         realTextWidth = size.X
                     end)
                     
-                    -- 2. Calcular os limites de espaço físico disponíveis
                     local minLabelWidth = 80
                     local maxButtonsSpaceAllowed = parentWidth - minLabelWidth - 36
                     local totalSpaceNeededForButtons = (#Defaults * 24) + ((#Defaults - 1) * 8)
@@ -3651,7 +3630,6 @@ end)
                     local activeWrapperWidth = 0
                     
                     if totalSpaceNeededForButtons <= maxButtonsSpaceAllowed then
-                        -- Caso 1: Todos os botões cabem perfeitamente
                         TruncateIndicator.Visible = false
                         for i = 1, #Defaults do
                             local picker = MultiColorpicker.Pickers[i]
@@ -3659,7 +3637,6 @@ end)
                         end
                         activeWrapperWidth = totalSpaceNeededForButtons
                     else
-                        -- Caso 2: Oculta itens que vazarem e liga o "..."
                         local spaceForButtons = maxButtonsSpaceAllowed - 24
                         local firstVisibleIndex = #Defaults
 
@@ -3688,25 +3665,19 @@ end)
                         TruncateIndicator.Visible = true
                     end
                     
-                    -- Redimensiona fisicamente a largura que os botões ocupam
                     ButtonsMainWrapper.Size = UDim2.new(0, activeWrapperWidth, 1, 0)
                     
-                    -- 3. ELIMINAÇÃO COMPLETA DO VÁCUO:
                     local maxAvailableLabelWidth = parentWidth - activeWrapperWidth - 32
                     
                     if realTextWidth > 0 and realTextWidth < maxAvailableLabelWidth then
-                        -- Se o texto é menor do que a área livre, a Label encolhe até ele (+2px de margem extra)
                         ContentLabel.Size = UDim2.new(0, realTextWidth + 2, 1, 0)
                     else
-                        -- Se o texto for gigante e estourar, ele expande até o limite permitido e trunca
                         ContentLabel.Size = UDim2.new(0, maxAvailableLabelWidth, 1, 0)
                     end
                 end
 
-                -- Conecta o redimensionamento dinâmico reativo
                 AddConnection(ColorpickerFrame.F:GetPropertyChangedSignal("AbsoluteSize"), RecalculateLayout)
                 
-                -- Executa de forma segura garantindo que os tamanhos já foram calculados pelo Roblox
                 task.spawn(function()
                     RecalculateLayout()
                     task.wait(0.05)
@@ -3715,7 +3686,6 @@ end)
                     RecalculateLayout()
                 end)
 
-                -- Conexões de Input do Mapa de Cores
                 AddConnection(Color.InputBegan, function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                         if ColorInput then ColorInput:Disconnect() end
@@ -3752,7 +3722,6 @@ end)
                     end
                 end)
 
-                -- Conexões de Input do Hue Slider
                 AddConnection(Hue.InputBegan, function(input)
                     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                         if HueInput then HueInput:Disconnect() end
@@ -3864,8 +3833,6 @@ end)
 				}),
 			})
 
-			
-
 			AddConnection(SectionFrame.Holder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
 				SectionFrame.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y + 31)
 				SectionFrame.Holder.Size = UDim2.new(1, 0, 0, SectionFrame.Holder.UIListLayout.AbsoluteContentSize.Y)
@@ -3881,7 +3848,6 @@ end)
 			Sections[TabConfig.Name][SectionConfig.Name] = SectionFrame
 
 			SectionFrame.Name = SectionConfig.Name
-
 
 			return SectionFunction
 		end	
@@ -3946,7 +3912,6 @@ end)
 			Name = "Window Stroke"
 		})
 
-
 		windowstroke:AddSlider({
 			Name = "Stroke",
 			Min = 1,
@@ -3992,23 +3957,213 @@ function OrionLib:Destroy()
 end
 
 -- =====================================================
---  BimBi_Hub 실행 코드 (여기부터 추가됨)
+--  BimBi_Hub 실행 코드 (수정된 라이브러리 사용)
 -- =====================================================
+
+-- 전역 변수 초기화
+_G.SuperSpeed = false
+_G.InfiniteJump = false
+_G.InfiniteJumpPower = 50
+_G.JumpPowerToggle = false
+_G.NoclipToggle = false
+Multiplier = 0.15
 
 -- OrionLib를 이용해 윈도우 생성
--- =====================================================
---  Player 탭 (블리치 소스에서 가져옴)
--- =====================================================
-
 local Window = OrionLib:MakeWindow({
     Name = "BimBi_Hub",
+    HidePremium = false,
+    SaveConfig = true,
+    ConfigFolder = "BimBiHub_Config",
     IntroEnabled = true,
     IntroText = "Bimbi_Hub - loading...",
     KeyToOpenWindow = "M",
     FreeMouse = true
 })
 
+-- Player 탭 생성
+local PlayerTab = Window:MakeTab({
+    Name = "Player",
+    Icon = "rbxassetid://7743871002",
+    PremiumOnly = false
+})
 
--- 테스트용 탭 추가 (원하면 추가/삭제 가능)
+-- Walkspeed 섹션
+local WSSection = PlayerTab:AddSection({
+    Name = "Walkspeed"
+})
+
+WSSection:AddToggle({
+    Name = "Walkspeed",
+    Default = false,
+    Callback = function(Value)
+        _G.SuperSpeed = Value
+        if not Value then
+            local player = game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+                player.Character:FindFirstChildOfClass("Humanoid").WalkSpeed = 16
+            end
+        end
+    end,
+    Save = true,
+    Flag = "walkspeed_toggle"
+})
+
+WSSection:AddSlider({
+    Name = "Speed",
+    Min = 0.1,
+    Max = 5,
+    Default = 0.15,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 0.01,
+    ValueName = "",
+    Callback = function(Value)
+        Multiplier = Value
+    end,
+    Save = true,
+    Flag = "speed_slider"
+})
+
+-- Infinite Power Jump 섹션
+local JPSection = PlayerTab:AddSection({
+    Name = "Infinite Power Jump"
+})
+
+JPSection:AddToggle({
+    Name = "Infinite Jump",
+    Default = false,
+    Callback = function(Value)
+        _G.InfiniteJump = Value
+    end,
+    Save = true,
+    Flag = "infinitejump_toggle"
+})
+
+JPSection:AddSlider({
+    Name = "Jump Power",
+    Min = 24,
+    Max = 1000,
+    Default = 50,
+    Color = Color3.fromRGB(255, 255, 255),
+    Increment = 10,
+    ValueName = "",
+    Callback = function(Value)
+        _G.InfiniteJumpPower = Value
+        local player = game.Players.LocalPlayer
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            if _G.JumpPowerToggle == nil or _G.JumpPowerToggle then
+                player.Character:FindFirstChildOfClass("Humanoid").JumpPower = Value
+            end
+        end
+    end,
+    Save = true,
+    Flag = "jumppower_slider"
+})
+
+-- Jump Power Control 토글
+JPSection:AddToggle({
+    Name = "Jump Power Control",
+    Default = false,
+    Callback = function(Value)
+        _G.JumpPowerToggle = Value
+        local player = game.Players.LocalPlayer
+        if player.Character and player.Character:FindFirstChildOfClass("Humanoid") then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            if Value then
+                humanoid.JumpPower = _G.InfiniteJumpPower or 50
+            else
+                humanoid.JumpPower = 50
+            end
+        end
+    end,
+    Save = true,
+    Flag = "jumppower_control_toggle"
+})
+
+-- Noclip 섹션
+local NCSection = PlayerTab:AddSection({
+    Name = "Noclip"
+})
+
+NCSection:AddToggle({
+    Name = "Noclip",
+    Default = false,
+    Callback = function(Value)
+        _G.NoclipToggle = Value
+        local player = game.Players.LocalPlayer
+        if Value then
+            local conn
+            conn = game:GetService("RunService").Stepped:Connect(function()
+                if player.Character then
+                    for _, part in ipairs(player.Character:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            part.CanCollide = false
+                        end
+                    end
+                end
+            end)
+            _G._noclipConn = conn
+        else
+            if _G._noclipConn then
+                _G._noclipConn:Disconnect()
+                _G._noclipConn = nil
+            end
+            if player.Character then
+                for _, part in ipairs(player.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = true
+                    end
+                end
+            end
+        end
+    end,
+    Save = true,
+    Flag = "noclip_toggle"
+})
+
+-- =====================================================
+--  Walkspeed 적용 (블리치 소스 방식)
+-- =====================================================
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    local player = game.Players.LocalPlayer
+    if not player or not player.Character then return end
+    local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+    
+    if _G.SuperSpeed then
+        local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            rootPart.CFrame = rootPart.CFrame + humanoid.MoveDirection * Multiplier
+        end
+    end
+end)
+
+-- =====================================================
+--  Infinite Jump 적용
+-- =====================================================
+
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if _G.InfiniteJump then
+        local player = game.Players.LocalPlayer
+        if player and player.Character then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end
+    end
+end)
+
+-- =====================================================
+--  실행 완료 알림
+-- =====================================================
+
+OrionLib:MakeNotification({
+    Name = "✅ BimBi_Hub",
+    Content = "로딩 완료!",
+    Image = "rbxassetid://4483345998",
+    Time = 2
+})
 
 print("✅ BimBi_Hub 실행 완료!")
+print("💡 M 키로 GUI를 열고 닫을 수 있습니다.")
